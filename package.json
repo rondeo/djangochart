@@ -21,7 +21,10 @@
     "dialogflow-fulfillment": "^0.6.1",
     "express": "^4.17.0",
     "ngrok": "^3.1.1",
-    "strong-soap": "^1.19.1"
+    "npm": "^6.9.0",
+    "run": "^1.4.0",
+    "strong-soap": "^1.19.1",
+    "tunnel": "0.0.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
