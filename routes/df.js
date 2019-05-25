@@ -18,7 +18,6 @@ app.post('/dialogflow', express.json(), (req, res) => {
 
     return axios.get(`http://127.0.0.1:1880/teste?cpf=${cpf}`)
     .then((result) => {
-
       let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr[0]
       let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome[0]
       let NomeEmpresa = result.data.XML.Contratos[0].Contrato[0].NomeEmpresa[0]
@@ -32,9 +31,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
       let Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira[0]
       if(Status == 'Acordo'){
         agent.add(`Você já tem um acordo vigente`);
-        agent.add(`Recebeu o boleto? Caso não é só me dizer`);
-        agent.add(`Tem alguma dúvida? ligue 1133057600 `);
-
+        agent.add(`Recebeu o boleto? Caso não é só dizer "não recebi o boleto"`);
+        agent.add(`Tem alguma outra dúvida? ligue ☎1133057600`);
       } else if (Status == 'Devolvido') { 
         agent.add(`Seu contrato não está mais conosco, procure a empresa credora`); 
       } 
@@ -57,23 +55,19 @@ app.post('/dialogflow', express.json(), (req, res) => {
           'QtdeParcAtr':QtdeParcAtr,
           'vencdisp':vencdisp,
           'NumContr':NumContr,
-          'PercDescTab':PercDescTab
+          'PercDescTab':PercDescTab,
+          'Carteira':Carteira
           }
       });
       })
       .catch (error => {
-        agent.add(`Não consegui encontrar o seu CPF. Pode ter acontecido o seguinte: `);
-        agent.add(`*Seu CPF não está em nossa base `); 
-        agent.add(`*Caso indisponivel para negociar neste canal `); 
-        agent.add(`Caso queira tentar novamente é só dizer negociar `); 
-
-        
-
+        agent.add(`Não consegui encontrar o seu CPF. Pode ter acontecido o seguinte:`);
+        agent.add(`➡Seu CPF não está em nossa base`); 
+        agent.add(`➡Caso indisponivel para negociar neste canal`); 
+        agent.add(`Caso queira tentar novamente é só dizer negociar`); 
     })
     }
-    
   }  
-  
   function confirmadados(agent){
     let contextIn = agent.context.get('cslog')
     let Nome = contextIn.parameters.Nome  
@@ -81,11 +75,12 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let motivo = contextIn.parameters.motivo
     let tel    = contextIn.parameters.tel
     let id     = contextIn.parameters.IdContr
-    agent.add(`Registrei seu motivo`)
+    agent.add(`Registrei seu motivo, agora podemos continuar`)
     return axios.get(`http://127.0.0.1:1880/acionar?id=${id}&tel=${tel}&climsg=virtual:${motivo}`)
     .then((result) => {
       agent.add(`Diga cálculo para que eu te passe os valores em aberto`)
     })
+    
     .catch (error => {
       agent.add(`Houve um erro ao executar esta ação, tente novamente mais tarde ou entre em contato conosco`)
   })
@@ -96,13 +91,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let IdContr = calc.parameters.IdContr
     let QtdeParcAtr = calc.parameters.QtdeParcAtr
     agent.add(`O protocolo e ID de seu contrato é:${IdContr}`);
-    /* data de hoje */
-    let time = new Date();
-    let outraData = new Date();
-    outraData.setDate(time.getDate() + 4);
-    let diadehoje = outraData.toISOString().slice(0,10);
-    /* data de hoje */
-    return axios.get(`http://127.0.0.1:1880/id?id=${IdContr}&vcto=${diadehoje}&parc=1&qdo=${QtdeParcAtr}`)
+    let calcvenc = diadocalculo() 
+    return axios.get(`http://127.0.0.1:1880/id?id=${IdContr}&vcto=${calcvenc}&parc=1&qdo=${QtdeParcAtr}`)
     .then((result) => {
       let valor = result.data.XML.Calculo[0].TotalSemDesc
       let titulos = result.data.XML.Calculo[0].Detalhes
@@ -119,6 +109,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let email      = contextIn.parameters.email 
     let context2In = context2In.agent.context.get('cslog')
     let id         = context2In.parameters.IdContr  
+    agent.add(`Processando solicitação de reenvio para o contrato:${id} para ser encaminhado no e email ${email}, é só aguardar`)
       return axios.get(`http://127.0.0.1:1880/reenvio?id=${id}&email=${email}`)
     .then((result) => {
       agent.add(`Abri a solicitação, agora é só aguardar`)
@@ -133,15 +124,9 @@ app.post('/dialogflow', express.json(), (req, res) => {
       let QtdeParcAtr   = calc.parameters.QtdeParcAtr
       let PercDescTab   = calc.parameters.PercDescTab
       let int           = parseInt(PercDescTab);
-      let desconto      = int/12
-     /* data de hoje */
-     var time = new Date();
-     var outraData = new Date();
-     outraData.setDate(time.getDate() + 4);
-     let diadehoje = outraData.toISOString().slice(0,10);
-     /* data de hoje */
-    
-      return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${diadehoje}&parc=1&qdo=${QtdeParcAtr}&desc=${desconto}`)
+      let desconto = check(int) 
+      let calcvenc = diadocalculo() 
+      return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${calcvenc}&parc=1&qdo=${QtdeParcAtr}&desc=${desconto}`)
       .then((result) => {
         let descvista = result.data.XML.Calculo[0].Total
         agent.add(`Consegui a vista por:`);  
@@ -153,14 +138,11 @@ app.post('/dialogflow', express.json(), (req, res) => {
       let calc = agent.context.get('cslog')
       let IdContr = calc.parameters.IdContr
       let QtdeParcAtr = calc.parameters.QtdeParcAtr
+      let MaxParc = calc.parameters.MaxParc
+      let calcvenc = diadocalculo() 
+      console.log(calcvenc)
       agent.add(`Simulei as condições parceladas`);
-      /* data de hoje */
-      var time = new Date();
-      var outraData = new Date();
-      outraData.setDate(time.getDate() + 4);
-      let diadehoje = outraData.toISOString().slice(0,10);
-      /* data de hoje */
-      return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${diadehoje}&parc=3&qdo=${QtdeParcAtr}&desc=0`)
+      return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${calcvenc}&parc=3&qdo=${QtdeParcAtr}&desc=0`)
       .then((result) => {
         let Parcela1 = result.data.XML.Calculo[0].Parcelas[0].Parcela[0].Valor[0]
         let Parcela2 = result.data.XML.Calculo[0].Parcelas[0].Parcela[1].Valor[0]
@@ -184,13 +166,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let QtdeParcAtr    = contextIn.parameters.QtdeParcAtr  
     let grava          = agent.context.get('gravaracordo')
     let email          = grava.parameters.email
-    /* data de hoje */
-    var time = new Date();
-    var outraData = new Date();
-    outraData.setDate(time.getDate() + 4);
-    let diadehoje = outraData.toISOString().slice(0,10);
-    /* data de hoje */
-    return axios.get(`http://127.0.0.1:1880/grava?id=${IdContr}&venc=${diadehoje}&selcparc=1&pcatr=${QtdeParcAtr}&email=${email}`)
+    let calcvenc       = diadocalculo() 
+    return axios.get(`http://127.0.0.1:1880/grava?id=${IdContr}&venc=${calcvenc}&selcparc=1&pcatr=${QtdeParcAtr}&email=${email}`)
     .then((result) => {
       var valor = result.data.XML.Calculo[0].TotalSemDesc
       var titulos = result.data.XML.Calculo[0].Detalhes
@@ -200,6 +177,18 @@ app.post('/dialogflow', express.json(), (req, res) => {
         agent.add(`Houve um erro ao executar esta ação, tente novamente mais tarde ou entre em contato conosco`)
     })
   }
+
+  function check(int) {
+    return int/10;
+  }
+  function diadocalculo()
+  {
+        var time = new Date();
+        var outraData = new Date();
+        outraData.setDate(time.getDate() + 4);
+        let diadehoje = outraData.toISOString().slice(0,10);
+        return diadehoje;
+  }
   
   let intentMap = new Map()
   intentMap.set('negociar', buscarcpf);
@@ -208,8 +197,6 @@ app.post('/dialogflow', express.json(), (req, res) => {
   intentMap.set('simular', simular);
   intentMap.set('formadepgto', formadepgto);
   intentMap.set('gravaracordo', gravaracordo);
-
-
   agent.handleRequest(intentMap)
 })
 
