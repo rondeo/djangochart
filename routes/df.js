@@ -11,24 +11,24 @@ app.post('/dialogflow', express.json(), (req, res) => {
     const cpf = agent.parameters.cpf;
     let pattern = /(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)|(^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$)/;
     if (cpf.length !== 11) {
-      agent.add(`CPF precisa ter 11 digitos, diga negociar novamente para consultar`);
+      agent.add(`CPF precisa ter 11 digitos, diga negociar novamente para consulta`);
     } else if (cpf.match(pattern) !== null) {
       agent.add(`CPF inválido`);
     } else {
 
     return axios.get(`http://127.0.0.1:1880/teste?cpf=${cpf}`)
     .then((result) => {
-      let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr[0]
-      let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome[0]
-      let NomeEmpresa = result.data.XML.Contratos[0].Contrato[0].NomeEmpresa[0]
-      let MaxParc     = result.data.XML.Contratos[0].Contrato[0].MaxParcelamento[0]
-      let Parcel      = result.data.XML.Contratos[0].Contrato[0].Parcelamentos[0]
-      let Status      = result.data.XML.Contratos[0].Contrato[0].Status[0]
-      let QtdeParcAtr = result.data.XML.Contratos[0].Contrato[0].QtdeParcAtraso[0]
-      let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos[0]
-      let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato[0]
+      let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr
+      let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome
+      let NomeEmpresa = result.data.XML.Contratos[0].Contrato[0].NomeEmpresa
+      let MaxParc     = result.data.XML.Contratos[0].Contrato[0].MaxParcelamento
+      let Parcel      = result.data.XML.Contratos[0].Contrato[0].Parcelamentos
+      let Status      = result.data.XML.Contratos[0].Contrato[0].Status
+      let QtdeParcAtr = result.data.XML.Contratos[0].Contrato[0].QtdeParcAtraso
+      let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos
+      let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato
       let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab
-      let Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira[0]
+      var Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira      
       if(Status == 'Acordo'){
         agent.add(`Você já tem um acordo vigente`);
         agent.add(`Recebeu o boleto? Caso não é só dizer "não recebi o boleto"`);
@@ -115,15 +115,13 @@ app.post('/dialogflow', express.json(), (req, res) => {
       agent.add(`Abri a solicitação, agora é só aguardar`)
     });
   }
-
-  function formadepgto (agent) {
-    let formadepgto = agent.parameters.formadepgto;
-    if (formadepgto == 'avista') {
-      let calc          = agent.context.get('cslog')
-      let IdContr       = calc.parameters.IdContr
-      let QtdeParcAtr   = calc.parameters.QtdeParcAtr
-      let PercDescTab   = calc.parameters.PercDescTab
-      let int           = parseInt(PercDescTab);
+  //int
+  function avista (agent) {
+      const calc          = agent.context.get('cslog')
+      const IdContr       = calc.parameters.IdContr
+      const QtdeParcAtr   = calc.parameters.QtdeParcAtr
+      const PercDescTab   = calc.parameters.PercDescTab
+      let int      = parseInt(PercDescTab);
       let desconto = check(int) 
       let calcvenc = diadocalculo() 
       return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${calcvenc}&parc=1&qdo=${QtdeParcAtr}&desc=${desconto}`)
@@ -131,34 +129,45 @@ app.post('/dialogflow', express.json(), (req, res) => {
         let descvista = result.data.XML.Calculo[0].Total
         agent.add(`Consegui a vista por:`);  
         agent.add(`R$${descvista}`); 
-        agent.add(`Pode formalizar o acordo?`);  
-         }); 
-         
-    } else if (formadepgto == 'Parcelado') {
-      let calc = agent.context.get('cslog')
-      let IdContr = calc.parameters.IdContr
-      let QtdeParcAtr = calc.parameters.QtdeParcAtr
-      let MaxParc = calc.parameters.MaxParc
-      let calcvenc = diadocalculo() 
-      console.log(calcvenc)
-      agent.add(`Simulei as condições parceladas`);
-      return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${calcvenc}&parc=3&qdo=${QtdeParcAtr}&desc=0`)
-      .then((result) => {
-        let Parcela1 = result.data.XML.Calculo[0].Parcelas[0].Parcela[0].Valor[0]
-        let Parcela2 = result.data.XML.Calculo[0].Parcelas[0].Parcela[1].Valor[0]
-        let Parcela3 = result.data.XML.Calculo[0].Parcelas[0].Parcela[2].Valor[0]
-        agent.add(`Valor da primeira parcela: ${Parcela1}`)  
-        agent.add(`Valor da segunda parcela: R$${Parcela2}`)
-        agent.add(`Valor da terceira parcela: R$${Parcela3}`)
-        agent.add(`Aceita o acordo nestas condições? (Sim ou não? 😊)`)
+        agent.add(`Pode formalizar o acordo?`); 
+        // agent.context.set({
+        //   'name':'avista',
+        //   'lifespan': 1,
+        //   'parameters':{
+        //     'forma de pgto':"A vista",
+        //     'valor':descvista,
+        //     'venc':calcvenc
+        //     }
+        // }); 
          })
          .catch (error => {
           agent.add(`Houve um erro ao executar esta ação, tente novamente mais tarde ou entre em contato conosco`)
       })
-    } else {
-      agent.add(`Forma de pagamento indisponível`);
-    }
   }
+  //end
+   //int parcelado
+   function Parcelamento (agent) {
+    let calc = agent.context.get('cslog')
+    let IdContr = calc.parameters.IdContr
+    let QtdeParcAtr = calc.parameters.QtdeParcAtr
+    let calcvenc = diadocalculo() 
+    console.log(calcvenc)
+    agent.add(`Simulei as condições parceladas`);
+    return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${calcvenc}&parc=3&qdo=${QtdeParcAtr}&desc=0`)
+    .then((result) => {
+      let Parcela1 = result.data.XML.Calculo[0].Parcelas[0].Parcela[0].Valor[0]
+      let Parcela2 = result.data.XML.Calculo[0].Parcelas[0].Parcela[1].Valor[0]
+      let Parcela3 = result.data.XML.Calculo[0].Parcelas[0].Parcela[2].Valor[0]
+      agent.add(`Valor da primeira parcela: ${Parcela1}`)  
+      agent.add(`Valor da segunda parcela: R$${Parcela2}`)
+      agent.add(`Valor da terceira parcela: R$${Parcela3}`)
+      agent.add(`Aceita o acordo nestas condições? (Sim ou não? 😊)`)
+       })
+       .catch (error => {
+        agent.add(`Houve um erro ao executar esta ação, tente novamente mais tarde ou entre em contato conosco`)
+    })
+}
+//end parcelado
 
   function gravaracordo () {
     let contextIn      = agent.context.get('cslog')
@@ -195,9 +204,9 @@ app.post('/dialogflow', express.json(), (req, res) => {
   intentMap.set('confirmadados', confirmadados);
   intentMap.set('reenvioboleto', reenvioboleto);
   intentMap.set('simular', simular);
-  intentMap.set('formadepgto', formadepgto);
   intentMap.set('gravaracordo', gravaracordo);
+  intentMap.set('condavista', avista);
+  intentMap.set('condparcelada', Parcelamento);
   agent.handleRequest(intentMap)
 })
-
 app.listen(process.env.PORT || 8080)
