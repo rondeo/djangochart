@@ -1,4 +1,5 @@
 'use strict';
+const x = require('./credor.js')
 const express = require('express')
 const { WebhookClient } = require('dialogflow-fulfillment')
 const app = express()
@@ -16,7 +17,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
       agent.add(`CPF inválido`);
     } else {
 
-    return axios.get(`http://127.0.0.1:1880/teste?cpf=${cpf}`)
+    return axios.get(`http://127.0.0.1:1880/buscarcpf?cpf=${cpf}`)
     .then((result) => {
       let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr
       let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome
@@ -25,10 +26,11 @@ app.post('/dialogflow', express.json(), (req, res) => {
       let Parcel      = result.data.XML.Contratos[0].Contrato[0].Parcelamentos
       let Status      = result.data.XML.Contratos[0].Contrato[0].Status
       let QtdeParcAtr = result.data.XML.Contratos[0].Contrato[0].QtdeParcAtraso
-      let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos
+      let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos[0]
       let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato
-      let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab
-      var Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira      
+      let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab[0]
+      var Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira
+      let vencperm    = vencdisp.slice(11,21)      
       if(Status == 'Acordo'){
         agent.add(`Você já tem um acordo vigente`);
         agent.add(`Recebeu o boleto? Caso não é só dizer "não recebi o boleto"`);
@@ -38,7 +40,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
       } 
         else if (Status == 'Cobrança') { 
       agent.add(`Consultei o CPF:${cpf}`);
-      agent.add(`Existe um contrato com a ${Carteira}`)
+      var credorform = x.credor(Carteira)
+      agent.add(`Existe um contrato com a ${credorform}`)
       agent.add(`Em nome de ${Nome}`)
       agent.add(`Confirma?`)
       }
@@ -54,6 +57,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
           'Status':Status,
           'QtdeParcAtr':QtdeParcAtr,
           'vencdisp':vencdisp,
+          'vencperm':vencperm,
           'NumContr':NumContr,
           'PercDescTab':PercDescTab,
           'Carteira':Carteira
@@ -90,6 +94,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let IdContr     = calc.parameters.IdContr
     let QtdeParcAtr = calc.parameters.QtdeParcAtr
     let vencperm    = calc.parameters.vencperm
+    console.log(vencperm)
    // var clienteptdate   = dateToPT(vencperm)
 //    agent.add(`O protocolo e ID de seu contrato é ${IdContr}`);
     return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=0`)
@@ -124,8 +129,14 @@ console.log(idContr)
       const IdContr       = calc.parameters.IdContr
       const QtdeParcAtr   = calc.parameters.QtdeParcAtr
       let vencperm        = calc.parameters.vencperm
-      let desconto        = calc.parameters.desconto
+      let PercDescTab     = calc.parameters.PercDescTab
+      console.log(PercDescTab)
+      let desconto        = check(PercDescTab)
       var clienteptdate   = dateToPT(vencperm)
+      console.log(IdContr)
+      console.log(QtdeParcAtr)
+      console.log(desconto)
+      console.log(vencperm)
       return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=${desconto}`)
       .then((result) => {
         let descvista = result.data.XML.Calculo[0].Total
@@ -163,7 +174,8 @@ console.log(idContr)
               })
   }
   function check(int) {
-    return int/10;
+  let desconto = parseInt(int)
+    return desconto/10;
   }
 
   function dateToPT(date)

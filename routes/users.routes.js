@@ -1,6 +1,6 @@
   module.exports = app => {
     const users = [
-      { name: 'Henrique', email: 'henrique@hotmail.com' }
+      { name: 'test', email: 'test@hotmail.com' }
     ]
     app.get('/users', (req, res) => {
       res.json(users)
