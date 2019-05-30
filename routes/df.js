@@ -6,6 +6,68 @@ const axios = require('axios');
 app.get('/', (req, res) => res.send('online e funcionando'))
 app.post('/dialogflow', express.json(), (req, res) => {
   const agent = new WebhookClient({ request: req, response: res })
+
+  function buscarcpf (agent) {
+    const cpf = agent.parameters.cpf;
+    let pattern = /(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)|(^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$)/;
+    if (cpf.length !== 11) {
+      agent.add(`CPF precisa ter 11 digitos, diga negociar novamente para consulta`);
+    } else if (cpf.match(pattern) !== null) {
+      agent.add(`CPF inválido`);
+    } else {
+
+    return axios.get(`http://127.0.0.1:1880/teste?cpf=${cpf}`)
+    .then((result) => {
+      let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr
+      let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome
+      let NomeEmpresa = result.data.XML.Contratos[0].Contrato[0].NomeEmpresa
+      let MaxParc     = result.data.XML.Contratos[0].Contrato[0].MaxParcelamento
+      let Parcel      = result.data.XML.Contratos[0].Contrato[0].Parcelamentos
+      let Status      = result.data.XML.Contratos[0].Contrato[0].Status
+      let QtdeParcAtr = result.data.XML.Contratos[0].Contrato[0].QtdeParcAtraso
+      let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos
+      let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato
+      let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab
+      var Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira      
+      if(Status == 'Acordo'){
+        agent.add(`Você já tem um acordo vigente`);
+        agent.add(`Recebeu o boleto? Caso não é só dizer "não recebi o boleto"`);
+        agent.add(`Tem alguma outra dúvida? ligue ☎1133057600`);
+      } else if (Status == 'Devolvido') { 
+        agent.add(`Seu contrato não está mais conosco, procure a empresa credora`); 
+      } 
+        else if (Status == 'Cobrança') { 
+      agent.add(`Consultei o CPF:${cpf}`);
+      agent.add(`Existe um contrato com a ${Carteira}`)
+      agent.add(`Em nome de ${Nome}`)
+      agent.add(`Confirma?`)
+      }
+      agent.context.set({
+        'name':'cslog',
+        'lifespan': 8,
+        'parameters':{
+          'IdContr':IdContr,
+          'Nome':Nome,
+          'NomeEmpresa':NomeEmpresa,
+          'MaxParc':MaxParc,
+          'Parcel':Parcel,
+          'Status':Status,
+          'QtdeParcAtr':QtdeParcAtr,
+          'vencdisp':vencdisp,
+          'NumContr':NumContr,
+          'PercDescTab':PercDescTab,
+          'Carteira':Carteira
+          }
+      });
+      })
+      .catch (error => {
+        agent.add(`Não consegui encontrar o seu CPF. Pode ter acontecido o seguinte:`);
+        agent.add(`➡Seu CPF não está em nossa base`); 
+        agent.add(`➡Caso indisponivel para negociar neste canal`); 
+        agent.add(`Caso queira tentar novamente é só dizer negociar`); 
+    })
+    }
+  }  
   function MOTIVOINDP(agent){
     let contextIn = agent.context.get('cslog')
     let Nome = contextIn.parameters.Nome  
