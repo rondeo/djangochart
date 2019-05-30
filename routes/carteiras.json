@@ -1,0 +1,527 @@
+[
+  {
+    "ID_CARTEIRA": 1,
+    "NOME_CARTEIRA": "0001-Panamericano - CDC",
+    "NOME_CREDOR": "BANCO PANAMERICANO S/A"
+  },
+  {
+    "ID_CARTEIRA": 2,
+    "NOME_CARTEIRA": "0002-Panamericano - Leasing",
+    "NOME_CREDOR": "PANAMERICANO ARREND. MERCANTIL S/A"
+  },
+  {
+    "ID_CARTEIRA": 3,
+    "NOME_CARTEIRA": "0003-Pan-Cart�o",
+    "NOME_CREDOR": "PanAmericano Administradora de Cart�es de Cr�dito Ltda"
+  },
+  {
+    "ID_CARTEIRA": 4,
+    "NOME_CARTEIRA": "0004-Liderprime Cart�o",
+    "NOME_CREDOR": "Liderprime - Administradora de Cart�es de Cr�dito Ltda, antigo Panamericano - Administradora de Cart�es de Cr�dito Ltda."
+  },
+  {
+    "ID_CARTEIRA": 5,
+    "NOME_CARTEIRA": "0005-Liderprime Massificado",
+    "NOME_CREDOR": "Liderprime - Administradora de Cart�es de Cr�dito Ltda, antigo Panamericano - Administradora de Cart�es de Cr�dito Ltda."
+  },
+  {
+    "ID_CARTEIRA": 20,
+    "NOME_CARTEIRA": "0020-BMG",
+    "NOME_CREDOR": ""
+  },
+  {
+    "ID_CARTEIRA": 30,
+    "NOME_CARTEIRA": "0030-Nextel",
+    "NOME_CREDOR": "Nextel Telecomunica��es Ltda."
+  },
+  {
+    "ID_CARTEIRA": 31,
+    "NOME_CARTEIRA": "0031-Nextel",
+    "NOME_CREDOR": "Nextel Telecomunica��es Ltda."
+  },
+  {
+    "ID_CARTEIRA": 55,
+    "NOME_CARTEIRA": "0055-Banif - Cheque",
+    "NOME_CREDOR": "BANIF - Banco Internacional do Funchal (Brasil) S.A."
+  },
+  {
+    "ID_CARTEIRA": 56,
+    "NOME_CARTEIRA": "0056-Banif - Ve�culos",
+    "NOME_CREDOR": "BANIF - Banco Internacional do Funchal (Brasil) S.A."
+  },
+  {
+    "ID_CARTEIRA": 57,
+    "NOME_CARTEIRA": "0057-Banif - Consignado Averba��o P�blica",
+    "NOME_CREDOR": "BANIF - Banco Internacional do Funchal (Brasil) S.A."
+  },
+  {
+    "ID_CARTEIRA": 70,
+    "NOME_CARTEIRA": "0070-Cremer",
+    "NOME_CREDOR": "Dental Cremer Produtos Odontol�gicos S.A."
+  },
+  {
+    "ID_CARTEIRA": 80,
+    "NOME_CARTEIRA": "0080-Damasio",
+    "NOME_CREDOR": "DAMASIO EDUCACIONAL S/A"
+  },
+  {
+    "ID_CARTEIRA": 100,
+    "NOME_CARTEIRA": "0100-Magno CEJ (Cobran�a Extra Judicial)",
+    "NOME_CREDOR": "CGMP - Centro de Gest�o de Meios de Pagamento"
+  },
+  {
+    "ID_CARTEIRA": 101,
+    "NOME_CARTEIRA": "0101-Sem Parar Fraude",
+    "NOME_CREDOR": "CGMP - Centro de Gest�o de Meios de Pagamento"
+  },
+  {
+    "ID_CARTEIRA": 102,
+    "NOME_CARTEIRA": "0102-Magno Preven��o (Fraude)",
+    "NOME_CREDOR": "CGMP - Centro de Gest�o de Meios de Pagamento"
+  },
+  {
+    "ID_CARTEIRA": 103,
+    "NOME_CARTEIRA": "0103-Magno GRIP (Fraude com Inqu�rito Policial)",
+    "NOME_CREDOR": "CGMP - Centro de Gest�o de Meios de Pagamento"
+  },
+  {
+    "ID_CARTEIRA": 130,
+    "NOME_CARTEIRA": "0130-Grupo Avenida",
+    "NOME_CREDOR": "CLUB MAIS ADMINISTRADORA DE CART�ES LTDA"
+  },
+  {
+    "ID_CARTEIRA": 150,
+    "NOME_CARTEIRA": "0150-Anhanguera",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 151,
+    "NOME_CARTEIRA": "0151-Anhanguera Cheque",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 152,
+    "NOME_CARTEIRA": "0152-Anhanguera FTG",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 153,
+    "NOME_CARTEIRA": "0153-Anhanguera JUDICIAL",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 160,
+    "NOME_CARTEIRA": "0160-Anhanguera CobSystems",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 162,
+    "NOME_CARTEIRA": "0162-Anhanguera FTG - CobSystems",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 170,
+    "NOME_CARTEIRA": "0170-Anhanguera CobSystems",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 171,
+    "NOME_CARTEIRA": "0171-Anhanguera EAD",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 172,
+    "NOME_CARTEIRA": "0172-Anhanguera FTG - CobSystems",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 173,
+    "NOME_CARTEIRA": "0173-Anhanguera Unopar EAD",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 174,
+    "NOME_CARTEIRA": "0174-Anhanguera Unopar EAD - CobSystems",
+    "NOME_CREDOR": "EDITORA E DISTRIBUIDORA EDUCACIONAL S/A"
+  },
+  {
+    "ID_CARTEIRA": 176,
+    "NOME_CARTEIRA": "0176-Anhanguera LFG",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 177,
+    "NOME_CARTEIRA": "0177-Anhanguera LFG Cheque",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 180,
+    "NOME_CARTEIRA": "0180-Anhanguera Interativa",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 185,
+    "NOME_CARTEIRA": "0185-Olimpo",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 186,
+    "NOME_CARTEIRA": "0186-Olimpo DM-Presencial CS",
+    "NOME_CREDOR": "ANHANGUERA EDUCACIONAL PARTICIPACOES S/A"
+  },
+  {
+    "ID_CARTEIRA": 190,
+    "NOME_CARTEIRA": "0190-Positron Servi�os",
+    "NOME_CREDOR": "PST ELETRONICS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 191,
+    "NOME_CARTEIRA": "0191-Positron Equipamento - GSM",
+    "NOME_CREDOR": "PST ELETRONICS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 192,
+    "NOME_CARTEIRA": "0192-Positron Equipamento - LC",
+    "NOME_CREDOR": "PST ELETRONICS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 193,
+    "NOME_CARTEIRA": "0193-Positron Industria",
+    "NOME_CREDOR": "PST ELETRONICS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 200,
+    "NOME_CARTEIRA": "0200-Yamaha",
+    "NOME_CREDOR": "YAMAHA"
+  },
+  {
+    "ID_CARTEIRA": 210,
+    "NOME_CARTEIRA": "0210-Porto Seguro Cart�o",
+    "NOME_CREDOR": "Porto Seguro"
+  },
+  {
+    "ID_CARTEIRA": 211,
+    "NOME_CARTEIRA": "0211-Porto Seguro",
+    "NOME_CREDOR": "Porto Seguro"
+  },
+  {
+    "ID_CARTEIRA": 220,
+    "NOME_CARTEIRA": "0220-BIC Banco Consignado",
+    "NOME_CREDOR": "Magno Servi�os de Cobran�as Ltda"
+  },
+  {
+    "ID_CARTEIRA": 230,
+    "NOME_CARTEIRA": "0230-Natura",
+    "NOME_CREDOR": "NATURA COSM�TICOS SA"
+  },
+  {
+    "ID_CARTEIRA": 240,
+    "NOME_CARTEIRA": "0240-CreditUni Anhanguera",
+    "NOME_CREDOR": "CREDITUNI PROMO��O E INTERMEDIA��O DE PRODUTOS E SERVI�OS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 250,
+    "NOME_CARTEIRA": "0250-SEB",
+    "NOME_CREDOR": "SEB Sistema Educacional Brasileiro S.A"
+  },
+  {
+    "ID_CARTEIRA": 260,
+    "NOME_CARTEIRA": "0260-Tenda Cart�o",
+    "NOME_CREDOR": "VOXCRED ADM DE CART�ES SERVI�OS E PROCESSAMENTO SA"
+  },
+  {
+    "ID_CARTEIRA": 261,
+    "NOME_CARTEIRA": "0261-Tenda Cart�o WS",
+    "NOME_CREDOR": "VOXCRED ADM DE CART�ES SERVI�OS E PROCESSAMENTO SA"
+  },
+  {
+    "ID_CARTEIRA": 300,
+    "NOME_CARTEIRA": "0300-Omni SG - Credito Pessoal",
+    "NOME_CREDOR": "OMNI"
+  },
+  {
+    "ID_CARTEIRA": 301,
+    "NOME_CARTEIRA": "0301-Omni SP - Saldo Pendente",
+    "NOME_CREDOR": "OMNI"
+  },
+  {
+    "ID_CARTEIRA": 302,
+    "NOME_CARTEIRA": "0302-Omni CG - Ve�culo",
+    "NOME_CREDOR": "OMNI"
+  },
+  {
+    "ID_CARTEIRA": 400,
+    "NOME_CARTEIRA": "0400-Avon Cobr�vel",
+    "NOME_CREDOR": "Avon Cosm�ticos Ltda"
+  },
+  {
+    "ID_CARTEIRA": 401,
+    "NOME_CARTEIRA": "0401-Avon Incobr�vel",
+    "NOME_CREDOR": "Avon Cosm�ticos Ltda"
+  },
+  {
+    "ID_CARTEIRA": 500,
+    "NOME_CARTEIRA": "0500-Todescredi Cheque",
+    "NOME_CREDOR": "TODhttps://www.csvjson.com/csv2jsonESCREDI"
+  },
+  {
+    "ID_CARTEIRA": 501,
+    "NOME_CARTEIRA": "0501-Todescredi",
+    "NOME_CREDOR": "TODESCREDI"
+  },
+  {
+    "ID_CARTEIRA": 502,
+    "NOME_CARTEIRA": "0502-Todescredi Cheque (Desc.)",
+    "NOME_CREDOR": "TODESCREDI"
+  },
+  {
+    "ID_CARTEIRA": 503,
+    "NOME_CARTEIRA": "0503-Todescredi Boleto",
+    "NOME_CREDOR": "TODESCREDI"
+  },
+  {
+    "ID_CARTEIRA": 530,
+    "NOME_CARTEIRA": "0530-Sorocred Cart�o",
+    "NOME_CREDOR": "Sorocred C.F.I. S/A"
+  },
+  {
+    "ID_CARTEIRA": 531,
+    "NOME_CARTEIRA": "0531-Sorocred Scard",
+    "NOME_CREDOR": "Sorocred C.F.I. S/A"
+  },
+  {
+    "ID_CARTEIRA": 532,
+    "NOME_CARTEIRA": "0532-Sorocred Financeira",
+    "NOME_CREDOR": "Sorocred C.F.I. S/A"
+  },
+  {
+    "ID_CARTEIRA": 533,
+    "NOME_CARTEIRA": "0533-Sorocred Cejud",
+    "NOME_CREDOR": "Sorocred C.F.I. S/A"
+  },
+  {
+    "ID_CARTEIRA": 534,
+    "NOME_CARTEIRA": "0534-Sorocred Cejud Lojas",
+    "NOME_CREDOR": "Sorocred C.F.I. S/A"
+  },
+  {
+    "ID_CARTEIRA": 600,
+    "NOME_CARTEIRA": "0600-Cruzeiro do Sul",
+    "NOME_CREDOR": "UNIVERSIDADE CRUZEIRO DO SUL S/A."
+  },
+  {
+    "ID_CARTEIRA": 610,
+    "NOME_CARTEIRA": "0610-Jequiti",
+    "NOME_CREDOR": "SSR COM�RCIO DE COSM�TICOS E PRODUTOS DE HIGIENE PESSOAL LTDA"
+  },
+  {
+    "ID_CARTEIRA": 611,
+    "NOME_CARTEIRA": "0611-Jequiti Pr�-Cobran�a",
+    "NOME_CREDOR": "SSR COM�RCIO DE COSM�TICOS E PRODUTOS DE HIGIENE PESSOAL LTDA"
+  },
+  {
+    "ID_CARTEIRA": 620,
+    "NOME_CARTEIRA": "0620-UBC Alunos",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 621,
+    "NOME_CARTEIRA": "0621-UBC Ex-Alunos",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 622,
+    "NOME_CARTEIRA": "0622-UBC Oraculo Alunos",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 623,
+    "NOME_CARTEIRA": "0623-UBC Oraculo Ex-Alunos",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 624,
+    "NOME_CARTEIRA": "0624-UBC Cheque-dev",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 625,
+    "NOME_CARTEIRA": "0625-UBC Cheque-prot",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 626,
+    "NOME_CARTEIRA": "0626-UBC Alunos P�s Gradua��o",
+    "NOME_CREDOR": "Sociedade Educacional Braz Cubas Ltda"
+  },
+  {
+    "ID_CARTEIRA": 630,
+    "NOME_CARTEIRA": "0630-PI Branemark",
+    "NOME_CREDOR": "PI BRANEMARK"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Col�gio Santa Marcelina Pira� do Sul"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Col�gio Santa Marcelina S�o Paulo"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Col�gio Santa Marcelina Palmas"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Col�gio Santa Marcelina Botucatu"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Faculdade Santa Marcelina Itaquera"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Col�gio Santa Marcelina Rio de Janeiro"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Faculdade Santa Marcelina Perdizes"
+  },
+  {
+    "ID_CARTEIRA": 640,
+    "NOME_CARTEIRA": "0640-Santa Marcelina",
+    "NOME_CREDOR": "Col�gio Santa Marcelina Belo Horizonte"
+  },
+  {
+    "ID_CARTEIRA": 650,
+    "NOME_CARTEIRA": "0650-FMU",
+    "NOME_CREDOR": "FACULDADES METROPOLITANAS UNIDAS"
+  },
+  {
+    "ID_CARTEIRA": 651,
+    "NOME_CARTEIRA": "0651-FMU - EAD",
+    "NOME_CREDOR": "FACULDADES METROPOLITANAS UNIDAS"
+  },
+  {
+    "ID_CARTEIRA": 652,
+    "NOME_CARTEIRA": "0652-FIAM",
+    "NOME_CREDOR": "SOCIEDADE DE CULTURA E ENSINO LTDA"
+  },
+  {
+    "ID_CARTEIRA": 653,
+    "NOME_CARTEIRA": "0653-FISP",
+    "NOME_CREDOR": "UNI�O EDUCACIONAL DE S�O PAULO LTDA"
+  },
+  {
+    "ID_CARTEIRA": 654,
+    "NOME_CARTEIRA": "0654-BSP",
+    "NOME_CREDOR": "FACULDADES METROPOLITANAS UNIDAS"
+  },
+  {
+    "ID_CARTEIRA": 655,
+    "NOME_CARTEIRA": "0655-UAM - EAD",
+    "NOME_CREDOR": "Universidade Anhembi Morumbi"
+  },
+  {
+    "ID_CARTEIRA": 656,
+    "NOME_CARTEIRA": "0656-UAM Presencial",
+    "NOME_CREDOR": "Universidade Anhembi Morumbi"
+  },
+  {
+    "ID_CARTEIRA": 657,
+    "NOME_CARTEIRA": "0657-UniRitter",
+    "NOME_CREDOR": "SOCIEDADE DE EDUCACAO RITTER DOS REIS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 658,
+    "NOME_CARTEIRA": "0658-Fadergs Presencial",
+    "NOME_CREDOR": "Fadergs - Faculdade de Desenvolvimento"
+  },
+  {
+    "ID_CARTEIRA": 659,
+    "NOME_CARTEIRA": "0659-Fadergs EAD",
+    "NOME_CREDOR": "Fadergs - Faculdade de Desenvolvimento"
+  },
+  {
+    "ID_CARTEIRA": 660,
+    "NOME_CARTEIRA": "0660-UNIFACS EAD",
+    "NOME_CREDOR": "UNIFACS"
+  },
+  {
+    "ID_CARTEIRA": 661,
+    "NOME_CARTEIRA": "0661-UNP Natal",
+    "NOME_CREDOR": "APEC - SOCIEDADE POTIGUAR DE EDUCACAO E CULTURA LTDA"
+  },
+  {
+    "ID_CARTEIRA": 662,
+    "NOME_CARTEIRA": "0662-FMU - EAD - Rematr�cula",
+    "NOME_CREDOR": "FACULDADES METROPOLITANAS UNIDAS"
+  },
+  {
+    "ID_CARTEIRA": 663,
+    "NOME_CARTEIRA": "0663-UAM - EAD - Rematr�cula",
+    "NOME_CREDOR": "Universidade Anhembi Morumbi"
+  },
+  {
+    "ID_CARTEIRA": 664,
+    "NOME_CARTEIRA": "0664-Fadergs EAD - Rematr�cula",
+    "NOME_CREDOR": "Fadergs - Faculdade de Desenvolvimento"
+  },
+  {
+    "ID_CARTEIRA": 665,
+    "NOME_CARTEIRA": "0665-UNIFACS EAD - Rematr�cula",
+    "NOME_CREDOR": "UNIFACS"
+  },
+  {
+    "ID_CARTEIRA": 666,
+    "NOME_CARTEIRA": "0666-UNP Natal - Rematr�cula",
+    "NOME_CREDOR": "APEC - SOCIEDADE POTIGUAR DE EDUCACAO E CULTURA LTDA"
+  },
+  {
+    "ID_CARTEIRA": 670,
+    "NOME_CARTEIRA": "0670-TV Alphaville PDD",
+    "NOME_CREDOR": "TV ALPHAVILLE SISTEMA DE TV POR ASSINATURA LTDA."
+  },
+  {
+    "ID_CARTEIRA": 671,
+    "NOME_CARTEIRA": "0671-TV Alphaville Dente",
+    "NOME_CREDOR": "TV ALPHAVILLE SISTEMA DE TV POR ASSINATURA LTDA."
+  },
+  {
+    "ID_CARTEIRA": 680,
+    "NOME_CARTEIRA": "0680-Jafra",
+    "NOME_CREDOR": "DISTRIBUIDORA JAFRA DE COSM�TICOS LTDA"
+  },
+  {
+    "ID_CARTEIRA": 700,
+    "NOME_CARTEIRA": "0700-Tvshop",
+    "NOME_CREDOR": "TVSHOP COM�RCIO DE PRODUTOS FUNCIONAIS LTDA - ME"
+  },
+  {
+    "ID_CARTEIRA": 710,
+    "NOME_CARTEIRA": "0710-Sinimplante",
+    "NOME_CREDOR": "SIN-Sistema  de Implante Nacional S/A"
+  },
+  {
+    "ID_CARTEIRA": 720,
+    "NOME_CARTEIRA": "0720-IBMEC",
+    "NOME_CREDOR": "GRUPO IBMEC EDUCACIONAL S.A."
+  },
+  {
+    "ID_CARTEIRA": 740,
+    "NOME_CARTEIRA": "0740-Somos Educa��o",
+    "NOME_CREDOR": "Somos Educa��o S.A."
+  },
+  {
+    "ID_CARTEIRA": 750,
+    "NOME_CARTEIRA": "0750-Top Formaturas",
+    "NOME_CREDOR": "TOP ENTRETENIMENTO LTDA"
+  }
+]
