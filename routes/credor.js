@@ -34,7 +34,7 @@ else if (carteira == '0160-Anhanguera CobSystems') {
   
 }
 else if (carteira == '0185-Olimpo') {
-  carteira = 'Grupo Kroton Educacional'
+  carteira = 'Rede Kroton Educacional'
   
 }
 else if (carteira == '0650-FMU') {
@@ -42,7 +42,7 @@ else if (carteira == '0650-FMU') {
   
 }
 else if (carteira == '0186-Olimpo DM-Presencial CS') {
-  carteira = 'Grupo Kroton Educacional'
+  carteira = 'Rede Kroton Educacional'
   
 }
 else if (carteira == '0651-FMU - EAD') {

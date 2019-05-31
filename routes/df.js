@@ -7,7 +7,7 @@ const axios = require('axios');
 app.get('/', (req, res) => res.send('online e funcionando'))
 app.post('/dialogflow', express.json(), (req, res) => {
   const agent = new WebhookClient({ request: req, response: res })
-
+  
   function buscarcpf (agent) {
     const cpf = agent.parameters.cpf;
     let pattern = /(^\d{3}\.\d{3}\.\d{3}\-\d{2}$)|(^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$)/;
@@ -21,7 +21,6 @@ app.post('/dialogflow', express.json(), (req, res) => {
     .then((result) => {
       let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr
       let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome
-      let NomeEmpresa = result.data.XML.Contratos[0].Contrato[0].NomeEmpresa
       let MaxParc     = result.data.XML.Contratos[0].Contrato[0].MaxParcelamento
       let Parcel      = result.data.XML.Contratos[0].Contrato[0].Parcelamentos
       let Status      = result.data.XML.Contratos[0].Contrato[0].Status
@@ -36,7 +35,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
         agent.add(`Recebeu o boleto? Caso não é só dizer "não recebi o boleto"`);
         agent.add(`Tem alguma outra dúvida? ligue ☎1133057600`);
       } else if (Status == 'Devolvido') { 
-        agent.add(`Seu contrato não está mais conosco, procure a empresa credora`); 
+        agent.add(`Poxa !! Vi que retiram seu contrato daqui, vou pedir que procure a empresa credora`); 
       } 
         else if (Status == 'Cobrança') { 
       agent.add(`Consultei o CPF:${cpf}`);
@@ -47,11 +46,10 @@ app.post('/dialogflow', express.json(), (req, res) => {
       }
       agent.context.set({
         'name':'cslog',
-        'lifespan': 8,
+        'lifespan': 10,
         'parameters':{
           'IdContr':IdContr,
           'Nome':Nome,
-          'NomeEmpresa':NomeEmpresa,
           'MaxParc':MaxParc,
           'Parcel':Parcel,
           'Status':Status,
@@ -73,55 +71,54 @@ app.post('/dialogflow', express.json(), (req, res) => {
     }
   }  
   function MOTIVOINDP(agent){
-    let contextIn = agent.context.get('cslog')
-    let Nome = contextIn.parameters.Nome  
-    agent.add(`${Nome}`)
-    let motivo = contextIn.parameters.motivo
-    let tel    = contextIn.parameters.tel
-    let id     = contextIn.parameters.IdContr
-    agent.add(`Registrei seu motivo, agora podemos continuar`)
-    return axios.get(`http://127.0.0.1:1880/acionar?id=${id}&tel=${tel}&climsg=MOTIVO DE ATRASO: ${motivo}`)
-    .then((result) => {
-      agent.add(`Diga cálculo para que eu te passe os valores em aberto`)
-    })
-    .catch (error => {
-      agent.add(`Houve um erro ao executar esta ação, tente novamente mais tarde ou entre em contato conosco`)
-  })
- 
-  }
-  function simular (agent) {
     let calc        = agent.context.get('cslog')
+    let Nome        = calc.parameters.Nome  
     let IdContr     = calc.parameters.IdContr
     let QtdeParcAtr = calc.parameters.QtdeParcAtr
     let vencperm    = calc.parameters.vencperm
-    console.log(vencperm)
-   // var clienteptdate   = dateToPT(vencperm)
-//    agent.add(`O protocolo e ID de seu contrato é ${IdContr}`);
-    return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=0`)
+    agent.add(`${Nome}`)
+    let motivo = calc.parameters.motivo
+    let tel    = calc.parameters.tel
+    let id     = calc.parameters.IdContr
+    agent.add(`Registrei o motivo e já busquei o que consta em aberto.`)
+    return axios.get(`http://127.0.0.1:1880/acionar?id=${id}&tel=${tel}&climsg=MOTIVO DE ATRASO: ${motivo}`)
     .then((result) => {
-      let valor = result.data.XML.Calculo[0].TotalSemDesc
-      let titulos = result.data.XML.Calculo[0].Detalhes
-      agent.add(`${titulos}`)  
-      agent.add(`O valor em aberto está em R$${valor} (atualizado hoje)`)
-      agent.add(`Me diga a forma de pagamento? (A vista ou Parcelado?)`)
-      //agent.add(`Venc ${clienteptdate}`)
-       })
-       .catch (error => {
-        agent.add(`Houve um erro ao executar esta ação, tente novamente mais tarde ou entre em contato conosco`)
+            return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=0`)
+            .then((result) => {
+              let valor = result.data.XML.Calculo[0].TotalSemDesc
+              let titulos = result.data.XML.Calculo[0].Detalhes
+              agent.add(`${titulos}`)  
+              agent.add(`O valor está hoje em R$${valor} (atualizado)`)
+              agent.add(`Preciso saber a forma de pagamento? (A vista ou Parcelado?)`)
+               })
     })
-   }
+    .catch (error => {
+      agent.add(`Ops, seu contrato foi bloqueado, vou pedir que ligue urgente para o tel: 1133057600`)
+  })
+ 
+  }
+  
    function reenvioboleto(agent){
-    let contextIn  = agent.context.get('email')
-    let email      = contextIn.parameters.email 
-    let context2In = context2In.agent.context.get('cslog')
-    let id         = context2In.parameters.IdContr  
-    agent.add(`já solicitei que reenviem o boleto no seu email:${email},agora é só aguardar`)
-    agent.add(`dentro de 24 horas úteis é o prazo limite, não deixe de verificar todas as caixas de seu email.`)
-console.log(idContr)
-      return axios.get(`http://127.0.0.1:1880/reenvio?id=${id}&email=${email}`)
+    const cpf = agent.parameters.cpf;
+    const email = agent.parameters.email;
+    return axios.get(`http://127.0.0.1:1880/buscarcpf?cpf=${cpf}`)
+    .then((result) => {  
+      let IdContr  = result.data.XML.Contratos[0].Contrato[0].IdContr
+      axios.get(`http://127.0.0.1:1880/email?id=${IdContr}&email=${email}`)
+      return axios.get(`http://127.0.0.1:1880/reenvio?id=${IdContr}&email=${email}`)
     .then((result) => {
-      agent.add(`Abri a solicitação, agora é só aguardar`)
+     let status = result.data.XML.Retorno[0].Status
+     if(status == 'ERRO'){
+      agent.add(`Não consegui solicitar o reenvio para o seu contrato, vou pedir que ligue no 1133057600`) 
+     } else {
+      agent.add(`já solicitei que reenviem o boleto no seu email:${email},agora é só aguardar`)
+      agent.add(`dentro de 24 horas úteis é o prazo limite, não deixe de verificar todas as caixas de seu email.`)
+     }
     });
+  })
+  .catch (error => {
+    agent.add(`Ops,não consegui reenviar o seu boleto, favor ligar no tel: 1133057600`)
+})
   }
 
   function avista (agent) {
@@ -130,13 +127,8 @@ console.log(idContr)
       const QtdeParcAtr   = calc.parameters.QtdeParcAtr
       let vencperm        = calc.parameters.vencperm
       let PercDescTab     = calc.parameters.PercDescTab
-      console.log(PercDescTab)
       let desconto        = check(PercDescTab)
       var clienteptdate   = dateToPT(vencperm)
-      console.log(IdContr)
-      console.log(QtdeParcAtr)
-      console.log(desconto)
-      console.log(vencperm)
       return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=${desconto}`)
       .then((result) => {
         let descvista = result.data.XML.Calculo[0].Total
@@ -146,7 +138,7 @@ console.log(idContr)
         agent.add(`Pode formalizar o acordo?`); 
         agent.context.set({
           'name':'condAC',
-          'lifespan': 5,
+          'lifespan': 8,
           'parameters':{
             'desconto':desconto,
             'parcela':1
@@ -179,7 +171,7 @@ console.log(idContr)
   }
 
   function dateToPT(date)
-  {	
+  { 
     return date.split('-').reverse().join('/');
   }
   ///events itents
@@ -191,48 +183,24 @@ function aceitouparcelamento(agent) {
   agent.add(`transferindo`)
   agent.setFollowupEvent('inputemail'); //followup end
 }
+function aceitouavista(agent) { 
+  agent.add(`transferindo`)
+  agent.setFollowupEvent('inputemail'); //followup end
+}
 function emailconfirmado(agent) { 
   agent.add(`transferindo`)
   agent.setFollowupEvent('gravarac'); //followup end
 }
 //end event itents
-function acvistaform (agent) { 
-  let contextIn   = agent.context.get('cslog')
-  let IdContr     = contextIn.parameters.IdContr
-  let QtdeParcAtr = contextIn.parameters.QtdeParcAtr  
-  let vencperm    = contextIn.parameters.vencperm
-  let contextIn2  = agent.context.get('condavista-sim-followup')
-  let email       = contextIn2.parameters.email
-  let x           = agent.context.get('condac')
-  let gravacomdesc = x.parameters.desconto
-  let parcela     = x.parameters.parcela
-
-  return axios.get(`http://127.0.0.1:1880/gravadesc?id=${IdContr}&venc=${vencperm}&parc=${parcela}&qpo=${QtdeParcAtr}&email=${email}&desc=${gravacomdesc}`)
-  .then((result) => {
-    var valor = result.data.XML.Calculo[0].Total
-    var email = result.data.XML.Boleto[0].EnvioPara[0]
-    //var titulos = result.data.XML.Calculo[0].Detalhes pensar se coloco ou não
-    agent.add(`Formalizei seu acordo no valor de R$${valor}, aguarde o boleto que em breve estará disponível em: ${email}`)
-    agent.add(`Atenção evite problemas com o seu boleto, caso não ocorra o pagamento as condições formalizadas serão alteradas`)  
-    agent.add(`O pagamento pode ser feito em agencias bancárias ou correspondentes, caso tenha dúvidas me pergunte que estou aqui para ajudar`)  
-
-  })
-     
-     .catch (error => {
-      agent.add(`Não consegui gravar o seu acordo, vou precisar que ligue para 1133057600`)
-    });
-}
 
 function Parcelamento(agent) {
   const calc          = agent.context.get('cslog')
   const IdContr       = calc.parameters.IdContr
   const QtdeParcAtr   = calc.parameters.QtdeParcAtr
   let vencperm        = calc.parameters.vencperm
- // let desconto        = calc.parameters.desconto
   var clienteptdate   = dateToPT(vencperm)
   return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=3&qpo=${QtdeParcAtr}&desc=0`)
   .then((result) => {
-    //let descvista = result.data.XML.Calculo[0].Total
     let Parcela1 = result.data.XML.Calculo[0].Parcelas[0].Parcela[0].Valor[0]
     let Parcela2 = result.data.XML.Calculo[0].Parcelas[0].Parcela[1].Valor[0]
     let Parcela3 = result.data.XML.Calculo[0].Parcelas[0].Parcela[2].Valor[0]
@@ -249,29 +217,31 @@ function Parcelamento(agent) {
         'parcela':3
         }
     });
+    
      })
+     .catch (error => {
+      agent.add(`Infelizmente não consegui parcelar o seu contrato. Diga a vista para seguirmos com a negociação`)
+    });
 }
 
 function gravarac (agent) { 
-  let contextIn   = agent.context.get('cslog')
-  let IdContr     = contextIn.parameters.IdContr
-  let QtdeParcAtr = contextIn.parameters.QtdeParcAtr  
-  let vencperm    = contextIn.parameters.vencperm
-  //let contextIn2  = agent.context.get('condavista-sim-followup')
-  //let email       = contextIn2.parameters.email
-  let x           = agent.context.get('condac')
-  let gravacomdesc = x.parameters.desconto
-  let parcela     = x.parameters.parcela
-
-  return axios.get(`http://127.0.0.1:1880/gravadesc?id=${IdContr}&venc=${vencperm}&parc=${parcela}&qpo=${QtdeParcAtr}&email=${email}&desc=${gravacomdesc}`)
-  .then((result) => {
-    var valor = result.data.XML.Calculo[0].Total
-    var email = result.data.XML.Boleto[0].EnvioPara[0]
-    //var titulos = result.data.XML.Calculo[0].Detalhes pensar se coloco ou não
-    agent.add(`Formalizei seu acordo no valor de R$${valor}, aguarde o boleto que em breve estará disponível em: ${email}`)
-    agent.add(`Atenção evite problemas com o seu boleto, caso não ocorra o pagamento as condições formalizadas serão alteradas`)  
-    agent.add(`O pagamento pode ser feito em agencias bancárias ou correspondentes, caso tenha dúvidas me pergunte que estou aqui para ajudar`)  
-
+    let contextIn   = agent.context.get('cslog')
+    let IdContr     = contextIn.parameters.IdContr
+    let QtdeParcAtr = contextIn.parameters.QtdeParcAtr  
+    let vencperm    = contextIn.parameters.vencperm
+    let email       = contextIn.parameters.email
+    let x           = agent.context.get('condac')
+    let gravacomdesc = x.parameters.desconto
+    let parcela     = x.parameters.parcela
+  
+    return axios.get(`http://127.0.0.1:1880/gravadesc?id=${IdContr}&venc=${vencperm}&parc=${parcela}&qpo=${QtdeParcAtr}&email=${email}&desc=${gravacomdesc}`)
+    .then((result) => {
+      var venc  = result.data.XML.Boleto[0].Vencimento[0]
+      var email           = result.data.XML.Boleto[0].EnvioPara[0]
+      var clienteptdate   = dateToPT(venc)
+      agent.add(`Formalizei seu acordo, aguarde que em breve o boleto estará disponível em: ${email}`)
+      agent.add(`⚠Atenção, caso não ocorra o pagamento até o vencimento ${clienteptdate} as condições aqui formalizadas serão perdidas⚠`)  
+      agent.add(`Dúvidas? me ligue ☎️1133057600`)    
   })
      
      .catch (error => {
@@ -283,11 +253,10 @@ function gravarac (agent) {
   let intentMap = new Map()
   intentMap.set('negociar', buscarcpf);
   intentMap.set('reenvioboleto', reenvioboleto);
-  intentMap.set('simular', simular);
   intentMap.set('condavista', avista);
   intentMap.set('negociar-yes', negociarsim);
   intentMap.set('MOTIVOINDP', MOTIVOINDP);  
-  intentMap.set('acordoavistaformalizado', acvistaform);  
+  intentMap.set('acordoavistaformalizado', aceitouavista);  
   intentMap.set('condparcelada', Parcelamento);  
   intentMap.set('gravarac', gravarac);  
   intentMap.set('condparcelada-sim', aceitouparcelamento);  
