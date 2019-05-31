@@ -38,7 +38,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
         agent.add(`Poxa !! Vi que retiram seu contrato daqui, vou pedir que procure a empresa credora`); 
       } 
         else if (Status == 'Cobrança') { 
-      agent.add(`Consultei o CPF:${cpf}`);
+      agent.add(`Consultei o seu CPF:${cpf}`);
       var credorform = x.credor(Carteira)
       agent.add(`Existe um contrato com a ${credorform}`)
       agent.add(`Em nome de ${Nome}`)
@@ -89,7 +89,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
               let valor = result.data.XML.Calculo[0].TotalSemDesc
               let titulos = result.data.XML.Calculo[0].Detalhes
               agent.add(`${titulos}`)  
-              agent.add(`O valor atualizado até hoje é R$${valor}`)
+              agent.add(`O valor atualizado até hoje é de R$${valor}`)
               agent.add(`Preciso saber a forma de pagamento? (A vista ou Parcelado?)`)
                })
     })
@@ -133,10 +133,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
       return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=${desconto}`)
       .then((result) => {
         let descvista = result.data.XML.Calculo[0].Total
-        agent.add(`Consegui a vista por:`);  
-        agent.add(`R$${descvista}`); 
-        agent.add(`Com vencimento para ${clienteptdate}`)
-        agent.add(`Podemos registrar seu acordo ?`); 
+        agent.add(`Conseguimos o valor a vista até ${clienteptdate} por: R$${descvista}`);  
+        agent.add(`Podemos registrar seu acordo?`); 
         agent.context.set({
           'name':'condAC',
           'lifespan': 8,
@@ -153,7 +151,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
             agent.add(`Juro que tentei um desconto mas não foi autorizado`);  
             agent.add(`fica a vista por R$${calculo}`); 
             agent.add(`Com vencimento para ${clienteptdate}`);
-            agent.add(`Vamos formalizar este acordo 😊?`)
+            agent.add(`Podemos registrar seu acordo?`)
             agent.context.set({
               'name':'condAC',
               'lifespan': 5,
@@ -166,6 +164,36 @@ app.post('/dialogflow', express.json(), (req, res) => {
              })
               })
   }
+  function Parcelamento(agent) {
+    const calc          = agent.context.get('cslog')
+    const IdContr       = calc.parameters.IdContr
+    const QtdeParcAtr   = calc.parameters.QtdeParcAtr
+    let vencperm        = calc.parameters.vencperm
+    let maisparcelas    = calc.parameters.Parcel[0]
+    let cond2parcws     = maisparcelas.slice(2,3)
+
+    return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=${cond2parcws}&qpo=${QtdeParcAtr}&desc=0`)
+    .then((result) => {
+        result.data.XML.Calculo[0].Parcelas[0].Parcela.map(cob => {
+          let x = parseInt(cob.NumParc[0]);
+          let venc = dateToPT(cob.Vencimento[0]);
+          agent.add("Parcela "+x+": "+ "no valor de "+"R$:"+cob.Valor[0]+". Vencimento da fatura: "+venc);
+        })    
+      agent.add(`Podemos registrar seu acordo ?`)
+      agent.context.set({
+        'name':'condAC',
+        'lifespan': 5,
+        'parameters':{
+          'desconto':0,
+          'parcela':cond2parcws
+          }
+      });
+      
+       })
+       .catch (error => {
+        agent.add(`Infelizmente não consegui parcelar o seu contrato. Diga a vista para seguirmos com a negociação`)
+      });
+  }
   function check(int) {
   let desconto = parseInt(int)
     return desconto/10;
@@ -175,6 +203,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
   { 
     return date.split('-').reverse().join('/');
   }
+
   ///events itents
   function negociarsim (agent) { 
     agent.add(`transferindo`)
@@ -192,15 +221,21 @@ function emailconfirmado(agent) {
   agent.add(`transferindo`)
   agent.setFollowupEvent('gravarac'); //followup end
 }
+function gravaracoutroparc(agent) { 
+  agent.add(`transferindo`)
+  agent.setFollowupEvent('inputemail'); //followup end
+}
+
 //end event itents
 
-function Parcelamento(agent) {
+function parcmaior(agent) {
   const calc          = agent.context.get('cslog')
   const IdContr       = calc.parameters.IdContr
   const QtdeParcAtr   = calc.parameters.QtdeParcAtr
   let vencperm        = calc.parameters.vencperm
-  var clienteptdate   = dateToPT(vencperm)
-  return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=6&qpo=${QtdeParcAtr}&desc=0`)
+  let maisparcelas    = calc.parameters.Parcel[0]
+  let cond2parcws     = maisparcelas.slice(4,5)
+  return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=${cond2parcws}&qpo=${QtdeParcAtr}&desc=0`)
   .then((result) => {
       result.data.XML.Calculo[0].Parcelas[0].Parcela.map(cob => {
         let x = parseInt(cob.NumParc[0]);
@@ -213,7 +248,7 @@ function Parcelamento(agent) {
       'lifespan': 5,
       'parameters':{
         'desconto':0,
-        'parcela':3
+        'parcela':cond2parcws
         }
     });
     
@@ -247,8 +282,6 @@ function gravarac (agent) {
       agent.add(`Não consegui gravar o seu acordo, vou precisar que ligue para 1133057600`)
     });
 }
-
-
   let intentMap = new Map()
   intentMap.set('negociar', buscarcpf);
   intentMap.set('reenvioboleto', reenvioboleto);
@@ -260,6 +293,15 @@ function gravarac (agent) {
   intentMap.set('gravarac', gravarac);  
   intentMap.set('condparcelada-sim', aceitouparcelamento);  
   intentMap.set('emailconfirmado', emailconfirmado);  
+  intentMap.set('condparcelada-no-outroparc', parcmaior);  
+  intentMap.set('condparcelada-no-outroparc-sim', gravaracoutroparc);  
+
+  
+
+  
+ // intentMap.set('p', parcmaior);  
+
   agent.handleRequest(intentMap)
 })
+
 app.listen(process.env.PORT || 8080)
