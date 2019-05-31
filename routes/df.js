@@ -80,7 +80,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let motivo = calc.parameters.motivo
     let tel    = calc.parameters.tel
     let id     = calc.parameters.IdContr
-    agent.add(`Registrei o motivo e já busquei o que consta em aberto.`)
+    agent.add(`Ok . . . compreendemos !
+    Vou te passar os valores que constam em aberto, até a presente data.`)
     return axios.get(`http://127.0.0.1:1880/acionar?id=${id}&tel=${tel}&climsg=MOTIVO DE ATRASO: ${motivo}`)
     .then((result) => {
             return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=0`)
@@ -88,7 +89,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
               let valor = result.data.XML.Calculo[0].TotalSemDesc
               let titulos = result.data.XML.Calculo[0].Detalhes
               agent.add(`${titulos}`)  
-              agent.add(`O valor está hoje em R$${valor} (atualizado)`)
+              agent.add(`O valor atualizado até hoje é R$${valor}`)
               agent.add(`Preciso saber a forma de pagamento? (A vista ou Parcelado?)`)
                })
     })
@@ -135,7 +136,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
         agent.add(`Consegui a vista por:`);  
         agent.add(`R$${descvista}`); 
         agent.add(`Com vencimento para ${clienteptdate}`)
-        agent.add(`Pode formalizar o acordo?`); 
+        agent.add(`Podemos registrar seu acordo ?`); 
         agent.context.set({
           'name':'condAC',
           'lifespan': 8,
@@ -199,15 +200,13 @@ function Parcelamento(agent) {
   const QtdeParcAtr   = calc.parameters.QtdeParcAtr
   let vencperm        = calc.parameters.vencperm
   var clienteptdate   = dateToPT(vencperm)
-  return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=3&qpo=${QtdeParcAtr}&desc=0`)
+  return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=6&qpo=${QtdeParcAtr}&desc=0`)
   .then((result) => {
-    let Parcela1 = result.data.XML.Calculo[0].Parcelas[0].Parcela[0].Valor[0]
-    let Parcela2 = result.data.XML.Calculo[0].Parcelas[0].Parcela[1].Valor[0]
-    let Parcela3 = result.data.XML.Calculo[0].Parcelas[0].Parcela[2].Valor[0]
-    agent.add(`Valor da primeira parcela:R$${Parcela1}`)  
-    agent.add(`Valor da segunda parcela: R$${Parcela2}`)
-    agent.add(`Valor da terceira parcela:R$${Parcela3}`)
-    agent.add(`Com vencimento para ${clienteptdate}`);
+      result.data.XML.Calculo[0].Parcelas[0].Parcela.map(cob => {
+        let x = parseInt(cob.NumParc[0]);
+        let venc = dateToPT(cob.Vencimento[0]);
+        agent.add("Parcela "+x+": "+ "no valor de "+"R$:"+cob.Valor[0]+". Vencimento da fatura: "+venc);
+      })    
     agent.add(`Aceita o acordo nestas condições? (Sim ou não? ??)`)
     agent.context.set({
       'name':'condAC',
