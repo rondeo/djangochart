@@ -6,7 +6,7 @@ const app = express()
 const axios = require('axios');
 app.get('/', (req, res) => res.send('online e funcionando'))
 app.post('/dialogflow', express.json(), (req, res) => {
-  const agent = new WebhookClient({ request: req, response: res })
+const agent = new WebhookClient({ request: req, response: res })
   
   function buscarcpf (agent) {
     const cpf = agent.parameters.cpf;
@@ -28,22 +28,34 @@ app.post('/dialogflow', express.json(), (req, res) => {
       let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos[0]
       let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato
       let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab[0]
-      var Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira
-      let vencperm    = vencdisp.slice(11,21)      
+      let Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira
+      let maiscontr   = result.data.XML
+      let vencperm    = vencdisp.slice(11,21) 
+
       if(Status == 'Acordo'){
         agent.add(`Você já tem um acordo vigente`);
         agent.add(`Recebeu o boleto? Caso não é só dizer "não recebi o boleto"`);
         agent.add(`Tem alguma outra dúvida? ligue ☎1133057600`);
+
       } else if (Status == 'Devolvido') { 
         agent.add(`Poxa !! Vi que retiram seu contrato daqui, vou pedir que procure a empresa credora`); 
-      } 
-        else if (Status == 'Cobrança') { 
+     
+      } else if (typeof maiscontr != 'undefined') { 
+        agent.add(`Você tem mais de um contrato conosco, segue as informações`); 
+        let ctr2 = maiscontr.Contratos[0].Contrato
+        ctr2.map(ctrs => {
+          agent.add(`Empresa: ${x.credor(ctrs.NomeCarteira)}. Contrato:${ctrs.IdContr}. Situação: ${ctrs.Status}`); 
+        })
+        agent.add(`Diga "verificar contrato específico" para seguirmos`); 
+  
+      } else if (Status == 'Cobrança') { 
       agent.add(`Consultei o seu CPF:${cpf}`);
       var credorform = x.credor(Carteira)
       agent.add(`Existe um contrato com a ${credorform}`)
       agent.add(`Em nome de ${Nome}`)
       agent.add(`Confirma?`)
       }
+      
       agent.context.set({
         'name':'cslog',
         'lifespan': 10,
@@ -82,8 +94,8 @@ app.post('/dialogflow', express.json(), (req, res) => {
     let id     = calc.parameters.IdContr
     agent.add(`Ok . . . compreendemos !
     Vou te passar os valores que constam em aberto, até a presente data.`)
-    return axios.get(`http://127.0.0.1:1880/acionar?id=${id}&tel=${tel}&climsg=MOTIVO DE ATRASO: ${motivo}`)
-    .then((result) => {
+    return axios.get(`http://127.0.0.1:1880/acionar?id=${id}&tel=${tel}&cod=327&climsg=MOTIVO DE ATRASO: ${motivo}`)
+    .then(() => {
             return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=1&qpo=${QtdeParcAtr}&desc=0`)
             .then((result) => {
               let valor = result.data.XML.Calculo[0].TotalSemDesc
@@ -98,7 +110,65 @@ app.post('/dialogflow', express.json(), (req, res) => {
   })
  
   }
-  
+  function neg_outr_ctr(agent){
+  const id = agent.parameters.id;
+  return axios.get(`http://127.0.0.1:1880/buscarid?id=${id}`)
+    .then((result) => {
+      let IdContr     = result.data.XML.Contratos[0].Contrato[0].IdContr
+      let Nome        = result.data.XML.Contratos[0].Contrato[0].Nome
+      let MaxParc     = result.data.XML.Contratos[0].Contrato[0].MaxParcelamento
+      let Parcel      = result.data.XML.Contratos[0].Contrato[0].Parcelamentos
+      let Status      = result.data.XML.Contratos[0].Contrato[0].Status
+      let QtdeParcAtr = result.data.XML.Contratos[0].Contrato[0].QtdeParcAtraso
+      let vencdisp    = result.data.XML.Contratos[0].Contrato[0].Vencimentos[0]
+      let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato
+      let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab[0]
+      let Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira
+      let vencperm    = vencdisp.slice(11,21) 
+      
+      agent.context.set({
+        'name':'contatopositivo',
+        'lifespan': 15,
+      });
+      agent.context.set({
+        'name':'cslog',
+        'lifespan': 40,
+        'parameters':{
+          'IdContr':IdContr,
+          'Nome':Nome,
+          'MaxParc':MaxParc,
+          'Parcel':Parcel,
+          'Status':Status,
+          'QtdeParcAtr':QtdeParcAtr,
+          'vencdisp':vencdisp,
+          'vencperm':vencperm,
+          'NumContr':NumContr,
+          'PercDescTab':PercDescTab,
+          'Carteira':Carteira
+          }  
+        })
+        agent.setFollowupEvent('MOTIVOINDP');
+        agent.add(`transferindo`)
+    })
+    .catch (error => {
+      agent.add(`Número de contrato informado está inválido ou indisponível`)
+  })
+  }
+  function registrarproposta(agent){
+    const proposta  = agent.parameters.proposta
+    let calc        = agent.context.get('cslog')
+    let IdContr     = calc.parameters.IdContr
+    let tel         = calc.parameters.tel
+
+    return axios.get(`http://127.0.0.1:1880/acionar?id=${IdContr}&tel=${tel}&cod=368&climsg=PROPOSTA: ${proposta}`)
+    .then(() => {
+        agent.add(`Ok, registrei que não tem condições, entraremos em contato em breve para conversar. Mantenha seu telefone ligado`)
+               })
+    .catch (error => {
+      agent.add(`Ops, seu contrato foi bloqueado, vou pedir que ligue urgente para o tel: 1133057600`)
+  })
+ 
+  }
    function reenvioboleto(agent){
     const cpf = agent.parameters.cpf;
     const email = agent.parameters.email;
@@ -160,7 +230,7 @@ app.post('/dialogflow', express.json(), (req, res) => {
                 'parcela':1
                 }
             }); 
-            
+          
              })
               })
   }
@@ -225,7 +295,6 @@ function gravaracoutroparc(agent) {
   agent.add(`transferindo`)
   agent.setFollowupEvent('inputemail'); //followup end
 }
-
 //end event itents
 
 function parcmaior(agent) {
@@ -254,7 +323,41 @@ function parcmaior(agent) {
     
      })
      .catch (error => {
-      agent.add(`Infelizmente não consegui parcelar o seu contrato. Diga a vista para seguirmos com a negociação`)
+      agent.add(`Infelizmente não consegui😔. Fiz até um esforço mas a melhor proposta parcelada foi a que te disse antes`)
+      agent.add(`Ei, aproveite antes que mudem a proposta, diga parcelado para continuarmos com aquela negociação`)
+
+    });
+}
+function ultimacondparc(agent) {
+  const calc          = agent.context.get('cslog')
+  const IdContr       = calc.parameters.IdContr
+  const QtdeParcAtr   = calc.parameters.QtdeParcAtr
+  let vencperm        = calc.parameters.vencperm
+  const MaxParc       = calc.parameters.MaxParc
+
+  
+  return axios.get(`http://127.0.0.1:1880/simulardesc?id=${IdContr}&vcto=${vencperm}&parc=${MaxParc}&qpo=${QtdeParcAtr}&desc=0`)
+  .then((result) => {
+      result.data.XML.Calculo[0].Parcelas[0].Parcela.map(cob => {
+        let x = parseInt(cob.NumParc[0]);
+        let venc = dateToPT(cob.Vencimento[0]);
+        agent.add("Parcela "+x+": "+ "no valor de "+"R$:"+cob.Valor[0]+". Vencimento da fatura: "+venc);
+      })    
+    agent.add(`Esta é a melhor proposta possível para seu contrato, diga sim para formalizar o acordo`)
+    agent.context.set({
+      'name':'condAC',
+      'lifespan': 5,
+      'parameters':{
+        'desconto':0,
+        'parcela':MaxParc
+        }
+    });
+    
+     })
+     .catch (error => {
+      agent.add(`Infelizmente não consegui😔. Fiz até um esforço mas a melhor proposta parcelada foi a que te disse antes`)
+      agent.add(`Ei, aproveite antes que mudem a proposta, diga parcelado para continuarmos com aquela negociação`)
+
     });
 }
 
@@ -284,22 +387,20 @@ function gravarac (agent) {
 }
   let intentMap = new Map()
   intentMap.set('negociar', buscarcpf);
-  intentMap.set('reenvioboleto', reenvioboleto);
-  intentMap.set('condavista', avista);
   intentMap.set('negociar-yes', negociarsim);
-  intentMap.set('MOTIVOINDP', MOTIVOINDP);  
-  intentMap.set('acordoavistaformalizado', aceitouavista);  
+  intentMap.set('MOTIVOINDP', MOTIVOINDP); 
+  intentMap.set('condavista', avista);
   intentMap.set('condparcelada', Parcelamento);  
+  intentMap.set('neg_outr_ctr', neg_outr_ctr);  
+  intentMap.set('acordoavistaformalizado', aceitouavista); 
+  intentMap.set('reenvioboleto', reenvioboleto); 
   intentMap.set('gravarac', gravarac);  
   intentMap.set('condparcelada-sim', aceitouparcelamento);  
   intentMap.set('emailconfirmado', emailconfirmado);  
   intentMap.set('condparcelada-no-outroparc', parcmaior);  
-  intentMap.set('condparcelada-no-outroparc-sim', gravaracoutroparc);  
-
-  
-
-  
- // intentMap.set('p', parcmaior);  
+  intentMap.set('condparcelada-no-outroparc-sim', gravaracoutroparc);
+  intentMap.set('ultimacondparc', ultimacondparc);  
+  intentMap.set('registrarproposta', registrarproposta);  
 
   agent.handleRequest(intentMap)
 })

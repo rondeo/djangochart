@@ -116,36 +116,36 @@ else if (carteira == '0170-Anhanguera CobSystems') {
   carteira = 'Anhanguera Educacional'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0640-Santa Marcelina') {
+  carteira = 'Colégio Santa Marcelina'
   
 }
 else if (carteira == '0177-Anhanguera LFG Cheque') {
   carteira = 'LFG CHEQUE'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0600-Cruzeiro do Sul') {
+  carteira = 'Universidade Cruzeiro do Sul'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0610-Jequiti') {
+  carteira = 'Jequiti'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0611-Jequiti Pré-Cobrança') {
+  carteira = 'Jequiti'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0620-UBC Alunos') {
+  carteira = 'Sociedade Educacional Braz Cubas'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0621-UBC Ex-Alunos') {
+  carteira = 'Sociedade Educacional Braz Cubas'
   
 }
-else if (carteira == '0177-Anhanguera LFG Cheque') {
-  carteira = 'LFG CHEQUE'
+else if (carteira == '0240-CreditUni Anhanguera') {
+  carteira = 'CREDITUNI PROMOÇÃO E INTERMEDIAÇÃO DE PRODUTOS E SERVIÇOS LTDA'
   
 }
  else {  
