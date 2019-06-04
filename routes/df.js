@@ -1,5 +1,6 @@
 'use strict';
 const x = require('./credor.js')
+const w = require('./data.js')
 const express = require('express')
 const { WebhookClient } = require('dialogflow-fulfillment')
 const app = express()
@@ -31,6 +32,7 @@ const agent = new WebhookClient({ request: req, response: res })
       let Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira
       let maiscontr   = result.data.XML
       let vencperm    = vencdisp.slice(11,21) 
+      let diautil     = addDays(vencperm, 3);
 
       if(Status == 'Acordo'){
         agent.add(`Você já tem um acordo vigente`);
@@ -39,18 +41,20 @@ const agent = new WebhookClient({ request: req, response: res })
 
       } else if (Status == 'Devolvido') { 
         agent.add(`Poxa !! Vi que retiram seu contrato daqui, vou pedir que procure a empresa credora`); 
-     
-      } else if (typeof maiscontr != 'undefined') { 
+      
+      } else if (typeof maiscontr.Contratos[0].Contrato[1] != 'undefined') { 
         agent.add(`Você tem mais de um contrato conosco, segue as informações`); 
         let ctr2 = maiscontr.Contratos[0].Contrato
         ctr2.map(ctrs => {
-          agent.add(`Empresa: ${x.credor(ctrs.NomeCarteira)}. Contrato:${ctrs.IdContr}. Situação: ${ctrs.Status}`); 
+          agent.add(`Empresa: ${x.credor(ctrs.NomeCarteira)}. Código:${ctrs.IdContr}. Situação: ${ctrs.Status}`); 
         })
-        agent.add(`Diga "verificar contrato específico" para seguirmos`); 
+        agent.add(`Anote ou copie o código da empresa que quer negociar`); 
+        agent.add(`e depois digite a frase 👉"verificar código"👈 para continuar`); 
   
       } else if (Status == 'Cobrança') { 
       agent.add(`Consultei o seu CPF:${cpf}`);
       var credorform = x.credor(Carteira)
+      var diautil2 = w.data(diautil)
       agent.add(`Existe um contrato com a ${credorform}`)
       agent.add(`Em nome de ${Nome}`)
       agent.add(`Confirma?`)
@@ -58,7 +62,7 @@ const agent = new WebhookClient({ request: req, response: res })
       
       agent.context.set({
         'name':'cslog',
-        'lifespan': 10,
+        'lifespan': 15,
         'parameters':{
           'IdContr':IdContr,
           'Nome':Nome,
@@ -66,11 +70,11 @@ const agent = new WebhookClient({ request: req, response: res })
           'Parcel':Parcel,
           'Status':Status,
           'QtdeParcAtr':QtdeParcAtr,
-          'vencdisp':vencdisp,
-          'vencperm':vencperm,
+          'vencdisp':vencperm,
+          'vencperm':diautil.toISOString().split('T')[0],
           'NumContr':NumContr,
           'PercDescTab':PercDescTab,
-          'Carteira':Carteira
+          'Carteira':Carteira,
           }
       });
       })
@@ -230,8 +234,10 @@ const agent = new WebhookClient({ request: req, response: res })
                 'parcela':1
                 }
             }); 
-          
              })
+              })
+              .catch (error => { 
+                agent.add(`nâo conseguir seguir com a solicitação, tente mais tarde`)
               })
   }
   function Parcelamento(agent) {
@@ -296,6 +302,18 @@ function gravaracoutroparc(agent) {
   agent.setFollowupEvent('inputemail'); //followup end
 }
 //end event itents
+function nuevovenc(agent) {
+  const date = agent.parameters.date;
+    agent.add(`Alterei o vencimento para o dia ${dateToPT(date.slice(0,10))}`)
+    agent.add(`Você queria a vista ou parcelado?`)
+    agent.context.set({
+      'name':'cslog',
+      'lifespan': 15,
+      'parameters':{
+        'vencperm': date.slice(0,10)
+        }
+    });
+  }
 
 function parcmaior(agent) {
   const calc          = agent.context.get('cslog')
@@ -314,7 +332,7 @@ function parcmaior(agent) {
     agent.add(`Aceita o acordo nestas condições? (Sim ou não? ??)`)
     agent.context.set({
       'name':'condAC',
-      'lifespan': 5,
+      'lifespan': 15,
       'parameters':{
         'desconto':0,
         'parcela':cond2parcws
@@ -346,7 +364,7 @@ function ultimacondparc(agent) {
     agent.add(`Esta é a melhor proposta possível para seu contrato, diga sim para formalizar o acordo`)
     agent.context.set({
       'name':'condAC',
-      'lifespan': 5,
+      'lifespan': 15,
       'parameters':{
         'desconto':0,
         'parcela':MaxParc
@@ -385,6 +403,12 @@ function gravarac (agent) {
       agent.add(`Não consegui gravar o seu acordo, vou precisar que ligue para 1133057600`)
     });
 }
+
+function addDays(date, day) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + day);
+  return result;
+}
   let intentMap = new Map()
   intentMap.set('negociar', buscarcpf);
   intentMap.set('negociar-yes', negociarsim);
@@ -401,6 +425,8 @@ function gravarac (agent) {
   intentMap.set('condparcelada-no-outroparc-sim', gravaracoutroparc);
   intentMap.set('ultimacondparc', ultimacondparc);  
   intentMap.set('registrarproposta', registrarproposta);  
+  intentMap.set('condavista_new_venc', nuevovenc);  
+
 
   agent.handleRequest(intentMap)
 })
