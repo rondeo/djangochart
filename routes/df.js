@@ -30,9 +30,10 @@ const agent = new WebhookClient({ request: req, response: res })
       let NumContr    = result.data.XML.Contratos[0].Contrato[0].NumContrato
       let PercDescTab = result.data.XML.Contratos[0].Contrato[0].PercDescTab[0]
       let Carteira    = result.data.XML.Contratos[0].Contrato[0].NomeCarteira
+      let telsmagno   = result.data.XML.Contratos[0].Contrato[0].TelRetorno
       let maiscontr   = result.data.XML
       let vencperm    = vencdisp.slice(11,21) 
-      let diautil     = addDays(vencperm, 3);
+      let diautil     = addDays(vencperm, 5);
 
       if(Status == 'Acordo'){
         agent.add(`Você já tem um acordo vigente`);
@@ -42,15 +43,14 @@ const agent = new WebhookClient({ request: req, response: res })
       } else if (Status == 'Devolvido') { 
         agent.add(`Poxa !! Vi que retiram seu contrato daqui, vou pedir que procure a empresa credora`); 
       
-      } else if (typeof maiscontr.Contratos[0].Contrato[1] != 'undefined') { 
+      }  else if (typeof maiscontr.Contratos[0].Contrato[1] != 'undefined') { 
         agent.add(`Você tem mais de um contrato conosco, segue as informações`); 
         let ctr2 = maiscontr.Contratos[0].Contrato
         ctr2.map(ctrs => {
           agent.add(`Empresa: ${x.credor(ctrs.NomeCarteira)}. Código:${ctrs.IdContr}. Situação: ${ctrs.Status}`); 
         })
         agent.add(`Anote ou copie o código da empresa que quer negociar`); 
-        agent.add(`e depois digite a frase 👉"verificar código"👈 para continuar`); 
-  
+        agent.add(`e depois digite a frase 👉"verificar código"👈 para continuar`);
       } else if (Status == 'Cobrança') { 
       agent.add(`Consultei o seu CPF:${cpf}`);
       var credorform = x.credor(Carteira)
@@ -75,6 +75,8 @@ const agent = new WebhookClient({ request: req, response: res })
           'NumContr':NumContr,
           'PercDescTab':PercDescTab,
           'Carteira':Carteira,
+          'telsmagno':telsmagno,
+
           }
       });
       })
@@ -132,7 +134,7 @@ const agent = new WebhookClient({ request: req, response: res })
       
       agent.context.set({
         'name':'contatopositivo',
-        'lifespan': 15,
+        'lifespan': 20,
       });
       agent.context.set({
         'name':'cslog',
@@ -192,7 +194,7 @@ const agent = new WebhookClient({ request: req, response: res })
     });
   })
   .catch (error => {
-    agent.add(`Ops,não consegui reenviar o seu boleto, favor ligar no tel: 1133057600`)
+    agent.add(`Ops,não consegui reenviar o seu boleto, favor entre em contato conosco. Caso precise do telefone digite 👉outros canais👈`)
 })
   }
 
@@ -374,9 +376,14 @@ function ultimacondparc(agent) {
      })
      .catch (error => {
       agent.add(`Infelizmente não consegui😔. Fiz até um esforço mas a melhor proposta parcelada foi a que te disse antes`)
-      agent.add(`Ei, aproveite antes que mudem a proposta, diga parcelado para continuarmos com aquela negociação`)
 
     });
+}
+function contatos (agent) { 
+  let contextIn  = agent.context.get('cslog')
+  let telsmagno  = contextIn.parameters.telsmagno
+  console.log(telsmagno)
+  agent.add(`Você pode ligar no ${telsmagno}`)
 }
 
 function gravarac (agent) { 
@@ -385,6 +392,7 @@ function gravarac (agent) {
     let QtdeParcAtr = contextIn.parameters.QtdeParcAtr  
     let vencperm    = contextIn.parameters.vencperm
     let email       = contextIn.parameters.email
+    let telsmagno   = contextIn.parameters.telsmagno
     let x           = agent.context.get('condac')
     let gravacomdesc = x.parameters.desconto
     let parcela     = x.parameters.parcela
@@ -396,12 +404,28 @@ function gravarac (agent) {
       var clienteptdate   = dateToPT(venc)
       agent.add(`Formalizei seu acordo, aguarde que em breve o boleto estará disponível em: ${email}`)
       agent.add(`⚠Atenção, caso não ocorra o pagamento até o vencimento ${clienteptdate} as condições aqui formalizadas serão perdidas⚠`)  
-      agent.add(`Dúvidas? me ligue ☎️1133057600`)    
+      agent.add(`Dúvidas? me ligue ☎️ ${telsmagno}`)    
   })
      
      .catch (error => {
       agent.add(`Não consegui gravar o seu acordo, vou precisar que ligue para 1133057600`)
     });
+}
+
+function contestadeb(agent){
+  const argumento = agent.parameters.argumento
+  let calc        = agent.context.get('cslog')
+  let IdContr     = calc.parameters.IdContr
+  let tel         = calc.parameters.tel
+
+  return axios.get(`http://127.0.0.1:1880/acionar?id=${IdContr}&tel=${tel}&cod=80&climsg=CONTESTOU:${argumento}`)
+  .then(() => {
+      agent.add(`Registrei sua reclamação, estaremos avaliando com a empresa credora e entraremos em contato em breve para conversar. Mantenha seu telefone ligado`)
+             })
+  .catch (error => {
+    agent.add(`Ops, seu contrato está bloqueado, fui perceber agora, por favor entre em contato no nosso número. Caso precise do telefone digite 👉contatos👈`)
+})
+
 }
 
 function addDays(date, day) {
@@ -424,10 +448,12 @@ function addDays(date, day) {
   intentMap.set('condparcelada-no-outroparc', parcmaior);  
   intentMap.set('condparcelada-no-outroparc-sim', gravaracoutroparc);
   intentMap.set('ultimacondparc', ultimacondparc);  
-  intentMap.set('registrarproposta', registrarproposta);  
-  intentMap.set('condavista_new_venc', nuevovenc);  
+  intentMap.set('registrarproposta', registrarproposta);
+  intentMap.set('condavista_new_venc', nuevovenc);    
+  intentMap.set('contestadeb', contestadeb);  
+  intentMap.set('contatos', contatos);  
 
-
+  
   agent.handleRequest(intentMap)
 })
 
